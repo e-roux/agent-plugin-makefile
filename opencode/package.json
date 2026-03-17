@@ -35,5 +35,8 @@
   },
   "engines": {
     "bun": ">=1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0"
   }
 }

@@ -13,8 +13,7 @@
     "declaration": true,
     "declarationMap": true,
     "outDir": "./dist",
-    "rootDir": ".",
-    "types": ["bun"]
+    "rootDir": "."
   },
   "include": ["index.ts", "core.ts"],
   "exclude": ["node_modules", "dist"]
