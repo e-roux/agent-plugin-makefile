@@ -11,6 +11,8 @@ import {
   validateMakefile,
   defaultCommandRules,
   defaultMakefileChecks,
+  MAKEFILE_POLICY,
+  BASH_TOOL_ADDENDUM,
   type BlockRule,
   type RewriteRule,
 } from "../../opencode/core";
@@ -295,5 +297,56 @@ describe("validateMakefile — qa target", () => {
   it("accepts qa declared only in .PHONY", () => {
     const content = VALID_MAKEFILE;
     expect(() => validateMakefile(content, defaultMakefileChecks)).not.toThrow();
+  });
+});
+
+// ── MAKEFILE_POLICY ──────────────────────────────────────────────────────────
+
+describe("MAKEFILE_POLICY", () => {
+  it("is a non-empty string", () => {
+    expect(typeof MAKEFILE_POLICY).toBe("string");
+    expect(MAKEFILE_POLICY.length).toBeGreaterThan(0);
+  });
+
+  it("mentions all forbidden direct commands", () => {
+    const forbidden = ["pytest", "ruff format", "ruff check", "go test", "go build", "golangci-lint", "eslint", "jest", "bun test", "black"];
+    for (const cmd of forbidden) {
+      expect(MAKEFILE_POLICY).toContain(cmd);
+    }
+  });
+
+  it("mentions all required Makefile directives", () => {
+    expect(MAKEFILE_POLICY).toContain(".SILENT:");
+    expect(MAKEFILE_POLICY).toContain(".ONESHELL:");
+    expect(MAKEFILE_POLICY).toContain(".DEFAULT_GOAL");
+  });
+
+  it("mentions the qa target requirement", () => {
+    expect(MAKEFILE_POLICY).toContain("qa");
+  });
+
+  it("mentions the @ prefix prohibition", () => {
+    expect(MAKEFILE_POLICY).toContain("@");
+  });
+});
+
+// ── BASH_TOOL_ADDENDUM ───────────────────────────────────────────────────────
+
+describe("BASH_TOOL_ADDENDUM", () => {
+  it("is a non-empty string", () => {
+    expect(typeof BASH_TOOL_ADDENDUM).toBe("string");
+    expect(BASH_TOOL_ADDENDUM.length).toBeGreaterThan(0);
+  });
+
+  it("mentions forbidden commands", () => {
+    expect(BASH_TOOL_ADDENDUM).toContain("pytest");
+    expect(BASH_TOOL_ADDENDUM).toContain("ruff");
+    expect(BASH_TOOL_ADDENDUM).toContain("go test");
+    expect(BASH_TOOL_ADDENDUM).toContain("jest");
+    expect(BASH_TOOL_ADDENDUM).toContain("black");
+  });
+
+  it("suggests make as the alternative", () => {
+    expect(BASH_TOOL_ADDENDUM).toContain("make");
   });
 });
