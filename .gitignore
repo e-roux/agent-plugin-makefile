@@ -1,0 +1,9 @@
+# Audit logs (written by hook scripts and opencode plugin, never committed)
+copilot-cli/hooks/logs/
+.github/hooks/logs/
+.opencode/logs/
+
+# Node/Bun artifacts (opencode package)
+opencode/node_modules/
+opencode/dist/
+opencode/bun.lock

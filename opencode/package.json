@@ -1,0 +1,39 @@
+{
+  "name": "opencode-makefile-enforcer",
+  "version": "0.1.0",
+  "description": "OpenCode plugin that enforces the Makefile-first workflow: validates Makefile structure (.SILENT:, .ONESHELL:, no @, qa target) and blocks direct tool invocations.",
+  "keywords": [
+    "opencode",
+    "plugin",
+    "makefile",
+    "make",
+    "development",
+    "toolchain"
+  ],
+  "homepage": "https://github.com/e-roux/agent-plugin-makefile#readme",
+  "bugs": {
+    "url": "https://github.com/e-roux/agent-plugin-makefile/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/e-roux/agent-plugin-makefile.git",
+    "directory": "opencode"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Emmanuel Roux"
+  },
+  "type": "module",
+  "main": "index.ts",
+  "files": [
+    "index.ts",
+    "core.ts",
+    "command/"
+  ],
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=0.13.7"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
