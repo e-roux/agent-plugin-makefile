@@ -106,6 +106,62 @@ export function validateMakefile(
 }
 
 // ---------------------------------------------------------------------------
+// Policy text — reused in system-prompt injection and compaction context
+// ---------------------------------------------------------------------------
+
+/**
+ * Makefile policy text injected into the LLM system prompt and preserved
+ * during session compaction.  Ensures the model knows the rules before
+ * it has a chance to violate them.
+ */
+export const MAKEFILE_POLICY = `\
+## Makefile-first development policy
+
+Every project MUST use a Makefile as the sole interface for development tasks.
+
+### Forbidden direct commands — use make targets instead
+
+| Forbidden command | Use instead  |
+|-------------------|--------------|
+| pytest            | make test    |
+| ruff format       | make fmt     |
+| ruff check        | make lint    |
+| go test           | make test    |
+| go build          | make build   |
+| golangci-lint     | make lint    |
+| eslint            | make lint    |
+| jest              | make test    |
+| bun test          | make test    |
+| black             | make fmt     |
+
+### Required Makefile directives (all four must be present)
+
+\`\`\`makefile
+SHELL := /bin/bash
+.SILENT:
+.ONESHELL:
+.DEFAULT_GOAL := help
+\`\`\`
+
+### Forbidden in Makefile recipes
+
+NEVER use the \`@\` prefix. \`.SILENT:\` already suppresses echoing — \`@\` is redundant and blocked.
+
+### Quality gate
+
+A \`qa\` target is mandatory. Run \`make qa\` and ensure it passes before completing any task.`;
+
+/**
+ * Short addendum appended to the bash tool description so the LLM sees
+ * the blocked-command list in every tool-call context window.
+ */
+export const BASH_TOOL_ADDENDUM = `\
+
+⚠️  Makefile policy — the following direct commands are FORBIDDEN:
+pytest · ruff format · ruff check · go test · go build · golangci-lint · eslint · jest · bun test · black
+Use \`make <target>\` instead (make test, make fmt, make lint, make build, make qa).`;
+
+// ---------------------------------------------------------------------------
 // Default command rules — mirror the copilot-cli pre-tool bash enforcement
 // More-specific rules listed first (first-wins matching).
 // ---------------------------------------------------------------------------

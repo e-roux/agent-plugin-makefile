@@ -13,6 +13,8 @@ import type { Plugin } from "@opencode-ai/plugin";
 import { appendFileSync, mkdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import {
+  BASH_TOOL_ADDENDUM,
+  MAKEFILE_POLICY,
   defaultCommandRules,
   defaultMakefileChecks,
   intercept,
@@ -40,6 +42,30 @@ export const MakefileEnforcerPlugin: Plugin = async ({ directory }) => {
   }
 
   return {
+    // ── Proactive policy injection ────────────────────────────────────────────
+
+    // Inject Makefile policy into the system prompt so the LLM knows the
+    // rules before it has a chance to violate them.
+    "experimental.chat.system.transform": async (_input, output) => {
+      output.system.push(MAKEFILE_POLICY);
+    },
+
+    // Augment the bash tool description so the blocked-command list appears
+    // in every tool-call context window.
+    "tool.definition": async (input, output) => {
+      if (input.toolID === "bash") {
+        output.description += BASH_TOOL_ADDENDUM;
+      }
+    },
+
+    // Preserve the Makefile policy during session compaction so it survives
+    // long sessions that summarise their history.
+    "experimental.session.compacting": async (_input, output) => {
+      output.context.push(MAKEFILE_POLICY);
+    },
+
+    // ── Reactive enforcement ──────────────────────────────────────────────────
+
     "tool.execute.before": async (input, output) => {
       const args = (output as { args?: Record<string, unknown> }).args ?? {};
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2026-03-17
+
+### Added
+
+- **opencode plugin**: proactive policy injection via three new hooks — `experimental.chat.system.transform` (policy in system prompt), `tool.definition` (bash tool description addendum), `experimental.session.compacting` (policy preserved across compaction).
+
 ## [0.1.0] - 2026-03-17
 
 ### Added
