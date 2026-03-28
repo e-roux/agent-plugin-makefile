@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0] - 2026-03-28
+
+### Added
+
+- **pre-tool.sh**: `_validate_existing_file()` — reads the Makefile from disk on every `edit` and denies if required directives (`.SILENT:`, `.ONESHELL:`, `.DEFAULT_GOAL`) are missing, unless the edit itself adds them. Fixes the gap where a non-compliant file could be silently edited.
+- **pre-tool.sh**: `_is_makefile()` helper — now detects `*.mk` include files in addition to `Makefile|makefile|GNUmakefile`.
+- **SKILL.md**: documents both help approaches — Approach A (ANSI Shadow, ≤15 targets) and Approach B (inline `##` annotations + `grep` pipeline, >15 targets, preferred for large Makefiles).
+- **validate.sh**: Check 3 now accepts both help approaches; auto-detects the `##` grep pipeline pattern.
+- **hooks.bats**: 4 new tests for full-state validation and `*.mk` detection (38 tests, 0 failures).
+
+### Fixed
+
+- `hooks.bats` session-start banner test: case mismatch (`MAKEFILE POLICY` → `Makefile Policy`).
+
 ## [0.1.1] - 2026-03-17
 
 ### Added
