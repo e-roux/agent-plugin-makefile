@@ -118,7 +118,7 @@ Development Progress:
 | 2 | Basic | Variables for tool paths. Partial target compliance. |
 | 3 | Functional | All mandatory standard targets implemented. |
 | 4 | Proper | `.PHONY:`, `.DEFAULT_GOAL:`, `.SILENT:`, `.ONESHELL:` present. |
-| 5 | Polished | `help` uses figlet ANSI Shadow header and categorised output. |
+| 5 | Polished | `help` uses double-line box-drawing header (from `assets/letters.json`) and categorised output. |
 | 6 | Advanced | **Strict `.SILENT:` compliance — ZERO `@` prefixes in recipes.** |
 | 7 | Professional | Real file targets as prerequisites (dependency graph). |
 | 8 | Expert | Grouped targets (`&:`), pattern rules, auto-dependencies. |
@@ -131,16 +131,33 @@ Development Progress:
 
 Two valid approaches — choose based on project size:
 
-### Approach A: ANSI Shadow (≤15 targets)
+### Approach A: Box-drawing header (≤15 targets)
 
-Best for small projects. Centralised help with figlet header.
+Best for small projects. Centralised help with ASCII art header.
 
 Keep output on **one terminal screen** (≤24 lines):
 - **5 sections** max (Setup, Dev, Test, Docs, Info)
 - **Max 10 character** section titles
 - **3–4 items per section**
-- **ASCII art header** via figlet ANSI Shadow font
+- **ASCII art header** using the double-line box-drawing alphabet — see [`assets/letters.json`](assets/letters.json)
 - **Colors**: Magenta (`\033[1;35m`) for sections, Cyan (`\033[36m`) for header
+
+**Rendering a banner from `letters.json`:**
+
+1. Read `assets/letters.json`
+2. For each character in the project name (uppercase), look up the 3-element array
+3. Concatenate all characters row by row (row 0 = top, 1 = middle, 2 = bottom)
+4. Emit as three `printf` lines inside the `help` target
+
+Example for project name `MAKE`:
+```makefile
+help:
+	printf "\033[36m"
+	printf "╔╦╗╔═╗╦╔ ╔═╗\n"
+	printf "║║║╠═╣╠╩╗║╣ \n"
+	printf "╝ ╝╝ ╝╝ ╝╚═╝\n"
+	printf "\033[0m\n"
+```
 
 ### Approach B: Inline `##` annotations (>15 targets) — PREFERRED
 
@@ -171,3 +188,4 @@ for the help system. They are required on every public target.
 
 Base template: [assets/Makefile.template](assets/Makefile.template)
 Validator: [assets/validate.sh](assets/validate.sh)
+Box-drawing alphabet: [assets/letters.json](assets/letters.json)
