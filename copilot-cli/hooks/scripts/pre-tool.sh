@@ -134,6 +134,17 @@ if [ "$TOOL_NAME" = "bash" ]; then
     _deny "Direct black is forbidden. Use Make targets instead: make fmt"
   fi
 
+  # python/pip/virtualenv — use uv
+  FORBIDDEN_PYTHON='(^|[;&|][[:space:]]*)(python3?|pip3?|virtualenv)([[:space:]]|$)'
+  if echo "$COMMAND" | grep -qE "$FORBIDDEN_PYTHON"; then
+    _deny "Direct python/pip/virtualenv is forbidden. Use uv: uv run <script>, uv add <pkg>, uvx <tool>"
+  fi
+
+  # mypy — use zmypy (zuban drop-in)
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)mypy([[:space:]]|$)'; then
+    _deny "Direct mypy is forbidden. Use zmypy (zuban): zmypy src/ or uv run zmypy src/"
+  fi
+
   exit 0
 fi
 

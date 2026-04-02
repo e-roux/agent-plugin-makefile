@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.4.0] - 2026-04-02
+
+### Added
+
+- **skills/python/**: merged `agent-plugin-python` into this plugin. The Python/uv skill now lives
+  at `copilot-cli/skills/python/SKILL.md`, alongside the existing Makefile skill. Includes all
+  assets (`conftest.py`, `pyproject.toml.template`, `python.md`, `ruff.toml`) and resources
+  (`scripts.md`, `build.md`).
+- **pre-tool.sh**: merged Python toolchain guards from `agent-plugin-python`:
+  - blocks direct `python`/`python3`, `pip`/`pip3`, `virtualenv` — use `uv` instead
+  - blocks direct `mypy` — use `zmypy` (zuban drop-in) instead
+- **skills directory restructured**: `copilot-cli/skill/` → `copilot-cli/skills/makefile/` per the
+  latest copilot-cli plugin spec (skills must live in named subdirectories).
+- **plugin.json**: `"skills"` path updated to `"skills/"`, version bumped to `0.4.0`, description
+  and keywords updated to reflect the merged Python scope.
+- **session-start.sh**: banner updated to cover both Makefile and Python toolchain rules.
+
 ## [0.3.1] - 2026-04-03
 
 ### Fixed

@@ -13,7 +13,7 @@ SCRIPTS_DIR="$BATS_TEST_DIRNAME/../../copilot-cli/hooks/scripts"
 @test "session-start: outputs policy banner" {
   local input='{"timestamp":1704614400000,"cwd":"/tmp","source":"new"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/session-start.sh'"
-  [[ "$output" == *"Makefile Policy"* ]]
+  [[ "$output" == *"Makefile"* ]] && [[ "$output" == *"Python"* ]]
 }
 
 @test "session-start: banner mentions .SILENT:" {
@@ -159,6 +159,37 @@ SCRIPTS_DIR="$BATS_TEST_DIRNAME/../../copilot-cli/hooks/scripts"
   [ "$status" -eq 0 ]
   decision="$(echo "$output" | jq -r '.permissionDecision')"
   [ "$decision" = "deny" ]
+}
+
+@test "pre-tool: denies direct python" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"python script.py\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  decision="$(echo "$output" | jq -r '.permissionDecision')"
+  [ "$decision" = "deny" ]
+}
+
+@test "pre-tool: denies direct pip install" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"pip install requests\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  decision="$(echo "$output" | jq -r '.permissionDecision')"
+  [ "$decision" = "deny" ]
+}
+
+@test "pre-tool: denies direct mypy" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"mypy src/\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  decision="$(echo "$output" | jq -r '.permissionDecision')"
+  [ "$decision" = "deny" ]
+}
+
+@test "pre-tool: allows uv run" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"uv run zmypy src/\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
 }
 
 @test "pre-tool: deny response is valid JSON" {
