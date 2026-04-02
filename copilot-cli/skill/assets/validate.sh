@@ -83,10 +83,9 @@ fi
 pass "No '@' prefix in recipes"
 
 # ═════════════════════════════════════════════════════════════════════════════
-# CHECK 3 — help target: structure and format
-# Two valid approaches:
-#   A) ANSI Shadow art + printf entries (template style, ≤15 targets)
-#   B) Inline ## annotations + grep pipeline (self-documenting, >15 targets)
+# CHECK 3 — help target: structure and format (Approach A only)
+# Approach B (inline ## annotations + grep pipeline) is FORBIDDEN.
+# The help target MUST use explicit printf entries with a box-drawing header.
 # ═════════════════════════════════════════════════════════════════════════════
 section "3. help target format"
 
@@ -96,54 +95,51 @@ if ! grep -qP '^help\s*:' "$MAKEFILE"; then
 fi
 pass "help: target exists"
 
-# Detect which approach is used
-USES_GREP_HELP=0
+# 3b. Reject ## annotations on target lines (Approach B is FORBIDDEN)
+ANNOTATED=$(grep -cP '^[a-zA-Z_.][a-zA-Z_.0-9]*[^#\n]*##' "$MAKEFILE" 2>/dev/null || true)
+ANNOTATED="${ANNOTATED//[^0-9]/}"
+ANNOTATED="${ANNOTATED:-0}"
+if [[ "$ANNOTATED" -gt 0 ]]; then
+    fail "Found $ANNOTATED target line(s) with '##' inline annotations — Approach B (grep-parsed help) is FORBIDDEN. Use explicit printf entries in the help target (Approach A)."
+fi
+pass "No inline ## annotations on target lines"
+
+# 3c. Reject grep-based help pipeline
 if grep -qP 'grep.*##.*MAKEFILE_LIST' "$MAKEFILE"; then
-    USES_GREP_HELP=1
+    fail "help target uses grep to parse '##' annotations — this pattern is FORBIDDEN. Use explicit printf entries instead."
+fi
+pass "No grep-based help pipeline"
+
+# 3d. Approach A: box-drawing header required
+ART_CHARS='[║╗╝╚╔═╠╣╦╩╬]'
+if grep -qP "$ART_CHARS" "$MAKEFILE"; then
+    pass "Box-drawing header detected"
+else
+    fail "No box-drawing header found in help target (expected chars: ║╗╝╚╔═ … from assets/letters.json)"
 fi
 
-if [[ "$USES_GREP_HELP" -eq 1 ]]; then
-    # ── Approach B: inline ## annotations ──────────────────────────────────
-    ANNOTATED=$(grep -cP '^[a-zA-Z_.]+:.*##' "$MAKEFILE" 2>/dev/null || true)
-    ANNOTATED="${ANNOTATED//[^0-9]/}"
-    ANNOTATED="${ANNOTATED:-0}"
-    if [[ "$ANNOTATED" -ge 5 ]]; then
-        pass "Inline ## help annotations detected ($ANNOTATED targets)"
-    else
-        fail "Too few ## annotations ($ANNOTATED). Annotate public targets: 'target: deps  ## description'"
-    fi
+if grep -qP 'Usage:' "$MAKEFILE"; then
+    pass "Usage: line present"
 else
-    # ── Approach A: ANSI Shadow art + printf entries ──────────────────────
-    ART_CHARS='[║╗╝╚╔═╠╣╦╩╬█▀▄]'
-    if grep -qP "$ART_CHARS" "$MAKEFILE"; then
-        pass "ASCII art block detected"
-    else
-        fail "No ANSI Shadow ASCII art found in help target (expected box-drawing chars: ║╗╝╚╔═ …)"
-    fi
+    fail "No 'Usage:' line found in help target"
+fi
 
-    if grep -qP 'Usage:' "$MAKEFILE"; then
-        pass "Usage: line present"
-    else
-        fail "No 'Usage:' line found in help target"
-    fi
+SECTION_COUNT=$(grep -cF '1;35m' "$MAKEFILE" 2>/dev/null || true)
+SECTION_COUNT="${SECTION_COUNT//[^0-9]/}"
+SECTION_COUNT="${SECTION_COUNT:-0}"
+if [[ "$SECTION_COUNT" -ge 1 ]]; then
+    pass "Colored section headers present ($SECTION_COUNT)"
+else
+    fail "No colored section headers found in help target (expected printf lines with \\033[1;35m<Name>:\\033[0m)"
+fi
 
-    SECTION_COUNT=$(grep -cF '1;35m' "$MAKEFILE" 2>/dev/null || true)
-    SECTION_COUNT="${SECTION_COUNT//[^0-9]/}"
-    SECTION_COUNT="${SECTION_COUNT:-0}"
-    if [[ "$SECTION_COUNT" -ge 1 ]]; then
-        pass "Colored section headers present ($SECTION_COUNT)"
-    else
-        fail "No colored section headers found in help target (expected printf lines with \\033[1;35m<Name>:\\033[0m)"
-    fi
-
-    ENTRY_LINES=$(grep -cP '^\t\s*printf\s+"[[:space:]]+\S+[[:space:]]+-[[:space:]]+\S' "$MAKEFILE" 2>/dev/null || true)
-    ENTRY_LINES="${ENTRY_LINES//[^0-9]/}"
-    ENTRY_LINES="${ENTRY_LINES:-0}"
-    if [[ "$ENTRY_LINES" -ge 2 ]]; then
-        pass "Vertical entry format detected ($ENTRY_LINES entries)"
-    else
-        fail "Help entries must be in vertical format: '  target     - description' (one per printf line, at least 2 found $ENTRY_LINES)"
-    fi
+ENTRY_LINES=$(grep -cP '^\t\s*printf\s+"[[:space:]]+\S+[[:space:]]+-[[:space:]]+\S' "$MAKEFILE" 2>/dev/null || true)
+ENTRY_LINES="${ENTRY_LINES//[^0-9]/}"
+ENTRY_LINES="${ENTRY_LINES:-0}"
+if [[ "$ENTRY_LINES" -ge 2 ]]; then
+    pass "Explicit printf entries detected ($ENTRY_LINES entries)"
+else
+    fail "Help entries must be explicit printf lines: '  target  - description' (at least 2 found $ENTRY_LINES)"
 fi
 
 # ═════════════════════════════════════════════════════════════════════════════

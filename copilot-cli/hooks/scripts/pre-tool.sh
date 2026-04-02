@@ -42,6 +42,11 @@ _validate_makefile() {
     _deny "Makefile has '@' prefix in recipe lines — this is redundant with '.SILENT:' and FORBIDDEN. Remove all '@' prefixes from recipes."
   fi
 
+  # ## annotations on target lines (Approach B) are FORBIDDEN
+  if echo "$content" | grep -qP '^[a-zA-Z_.][a-zA-Z_.0-9]*[^#\n]*##'; then
+    _deny "Makefile has '##' inline annotations on target lines — Approach B (grep-parsed help) is FORBIDDEN. Use explicit printf entries in the help target instead (Approach A)."
+  fi
+
   # qa target: check .PHONY declaration and actual recipe
   if ! echo "$content" | grep -qP '(?:^\.PHONY:[^\n]*\bqa\b|^qa\s*:)'; then
     _deny "Makefile missing required 'qa' target — add a 'qa:' recipe that runs 'check test' as the quality gate (e.g., 'qa: check test')."

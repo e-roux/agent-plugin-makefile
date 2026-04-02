@@ -7,3 +7,7 @@ copilot-cli/hooks/logs/
 opencode/node_modules/
 opencode/dist/
 opencode/bun.lock
+
+# Go build artifacts
+mcp/mcp-banner
+copilot-cli/bin/

@@ -1,7 +1,7 @@
 {
   "name": "makefile",
   "description": "Makefile development plugin: enforces Makefile structure (.SILENT:, no @, qa target) and blocks direct tool invocations that bypass Make targets.",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "author": {
     "name": "Emmanuel Roux"
   },
@@ -15,5 +15,6 @@
   ],
   "category": "development",
   "skills": "skill/",
-  "hooks": "hooks/policy.json"
+  "hooks": "hooks/policy.json",
+  "mcpServers": ".mcp.json"
 }

@@ -1,6 +1,6 @@
 {
   "name": "opencode-makefile-enforcer",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "OpenCode plugin that enforces the Makefile-first workflow: validates Makefile structure (.SILENT:, .ONESHELL:, no @, qa target) and blocks direct tool invocations.",
   "keywords": [
     "opencode",

@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.3.1] - 2026-04-03
+
+### Fixed
+
+- **Makefile (root)**: Corrected `I` glyph in "AGENT PLUGIN MAKEFILE" banner — regenerated with `mcp-banner` tool using the centered serif `I` ( ╦ / ║ / ╩ ).
+- **mcp/letters.json** + **copilot-cli/skill/assets/letters.json**: `I` glyph recentered with ╩ serif bottom (`[" ╦ ", " ║ ", " ╩ "]`) to eliminate 4-space gap before following letters.
+
+## [0.3.0] - 2026-04-02
+
+### Added
+
+- **mcp/**: Go MCP server (`mcp-banner`) — exposes a `make_banner` tool that renders any string as a 3-row box-drawing banner using the double-line Unicode alphabet from `letters.json`. Eliminates error-prone hand-crafting of ASCII art in Makefile `help` targets.
+- **copilot-cli/.mcp.json**: Registers the `mcp-banner` stdio server with the Copilot CLI plugin.
+- **copilot-cli/plugin.json**: `"mcpServers": ".mcp.json"` — wires the MCP server into the plugin.
+- **Makefile**: `mcp.test` and `mcp.build` targets; `go` added to `sync`; `distclean` now removes `copilot-cli/bin/`.
+
+### Changed
+
+- **Makefile (root)**: Help header migrated from block-font ASCII art to the box-drawing alphabet (`╔╦╗╔═╗╦╔ ╔═╗` / `║║║╠═╣╠╩╗║╣ ` / `╝ ╝╝ ╝╝ ╝╚═╝`).
+- **copilot-cli/skill/assets/Makefile.template**: Same header fix — big block "MAKE" art replaced with the letters.json box-drawing version.
+- **pre-tool.sh / validate.sh**: `##` inline annotations on target lines are now **FORBIDDEN** (Approach B removed). Any Makefile with `##`-annotated targets is denied/failed.
+- **SKILL.md**: Approach B removed entirely; box-drawing `printf` help (Approach A) is the only valid pattern.
+
 ## [0.2.0] - 2026-03-28
 
 ### Added

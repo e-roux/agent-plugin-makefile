@@ -129,11 +129,10 @@ Development Progress:
 
 ## Help Design
 
-Two valid approaches — choose based on project size:
+The `help` target **always** uses Approach A: a box-drawing header with explicit `printf` entries.
+Approach B (inline `##` annotations + `grep` pipeline) is **FORBIDDEN** — both the hook and the validator will reject it.
 
-### Approach A: Box-drawing header (≤15 targets)
-
-Best for small projects. Centralised help with ASCII art header.
+### Approach A: Box-drawing header + explicit printf (mandatory)
 
 Keep output on **one terminal screen** (≤24 lines):
 - **5 sections** max (Setup, Dev, Test, Docs, Info)
@@ -158,29 +157,6 @@ help:
 	printf "╝ ╝╝ ╝╝ ╝╚═╝\n"
 	printf "\033[0m\n"
 ```
-
-### Approach B: Inline `##` annotations (>15 targets) — PREFERRED
-
-Best for large Makefiles. Self-documenting — help stays in sync automatically.
-
-Add `## description` after each public target:
-
-```makefile
-build: $(BINARY)  ## Build the project binary
-test: test.unit   ## Run all tests
-qa: check test    ## Quality gate (MUST PASS before commit)
-```
-
-The `help` target parses annotations with `grep`:
-
-```makefile
-help:  ## Show available targets
-	printf "\033[1;36mProject\033[0m — make targets\n\n"
-	grep -E '^[a-zA-Z_.]+:.*##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
-```
-
-These `##` annotations are NOT code comments — they are **machine-parsed metadata**
-for the help system. They are required on every public target.
 
 ---
 

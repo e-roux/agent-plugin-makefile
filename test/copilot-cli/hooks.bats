@@ -403,3 +403,53 @@ SCRIPTS_DIR="$BATS_TEST_DIRNAME/../../copilot-cli/hooks/scripts"
   decision="$(echo "$output" | jq -r '.permissionDecision')"
   [ "$decision" = "deny" ]
 }
+
+# ── pre-tool.sh: ## annotation enforcement ─────────────────────────────────────
+
+@test "pre-tool: denies Makefile creation with ## annotations (Approach B)" {
+  local content
+  content=$(printf 'SHELL := /bin/bash\n.SILENT:\n.ONESHELL:\n.DEFAULT_GOAL := help\n.PHONY: qa test\nqa: test  ## Quality gate\ntest:\n\techo hi\n')
+  local toolargs
+  toolargs=$(jq -n --arg path '/tmp/Makefile' --arg ft "$content" '{"path":$path,"file_text":$ft}')
+  local input
+  input=$(jq -n --arg ta "$toolargs" '{"toolName":"create","toolArgs":$ta}')
+  local tmpf; tmpf=$(mktemp)
+  echo "$input" > "$tmpf"
+  run bash -c "'$SCRIPTS_DIR/pre-tool.sh' < '$tmpf'"
+  rm -f "$tmpf"
+  [ "$status" -eq 0 ]
+  decision="$(echo "$output" | jq -r '.permissionDecision')"
+  [ "$decision" = "deny" ]
+}
+
+@test "pre-tool: deny reason for ## annotations mentions Approach B" {
+  local content
+  content=$(printf 'SHELL := /bin/bash\n.SILENT:\n.ONESHELL:\n.DEFAULT_GOAL := help\n.PHONY: qa test\nqa: test  ## Quality gate\ntest:\n\techo hi\n')
+  local toolargs
+  toolargs=$(jq -n --arg path '/tmp/Makefile' --arg ft "$content" '{"path":$path,"file_text":$ft}')
+  local input
+  input=$(jq -n --arg ta "$toolargs" '{"toolName":"create","toolArgs":$ta}')
+  local tmpf; tmpf=$(mktemp)
+  echo "$input" > "$tmpf"
+  run bash -c "'$SCRIPTS_DIR/pre-tool.sh' < '$tmpf'"
+  rm -f "$tmpf"
+  [ "$status" -eq 0 ]
+  reason="$(echo "$output" | jq -r '.permissionDecisionReason')"
+  [[ "$reason" == *"##"* ]]
+  [[ "$reason" == *"FORBIDDEN"* ]]
+}
+
+@test "pre-tool: allows Makefile creation without ## annotations" {
+  local content
+  content=$(printf 'SHELL := /bin/bash\n.SILENT:\n.ONESHELL:\n.DEFAULT_GOAL := help\n.PHONY: qa test\nqa: test\ntest:\n\techo hi\n')
+  local toolargs
+  toolargs=$(jq -n --arg path '/tmp/Makefile' --arg ft "$content" '{"path":$path,"file_text":$ft}')
+  local input
+  input=$(jq -n --arg ta "$toolargs" '{"toolName":"create","toolArgs":$ta}')
+  local tmpf; tmpf=$(mktemp)
+  echo "$input" > "$tmpf"
+  run bash -c "'$SCRIPTS_DIR/pre-tool.sh' < '$tmpf'"
+  rm -f "$tmpf"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
