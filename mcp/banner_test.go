@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"encoding/json"
+	"strings"
+	"testing"
+)
 
 // Each glyph is exactly 3 chars wide; rows are concatenated without separators.
 
@@ -74,5 +78,76 @@ func TestRenderOutputHasExactlyTwoNewlines(t *testing.T) {
 		if count != 2 {
 			t.Errorf("render(%q): expected exactly 2 newlines, got %d", word, count)
 		}
+	}
+}
+
+// ── MCP protocol tests ────────────────────────────────────────────────────────
+
+// mcpCall sends a single JSON-RPC request to serve() and returns the decoded response.
+func mcpCall(t *testing.T, reqJSON string) map[string]any {
+	t.Helper()
+	var out strings.Builder
+	serve(strings.NewReader(reqJSON+"\n"), &out)
+	var result map[string]any
+	if err := json.Unmarshal([]byte(out.String()), &result); err != nil {
+		t.Fatalf("mcpCall: failed to parse response %q: %v", out.String(), err)
+	}
+	return result
+}
+
+func TestMakeBannerMCPProtocolVFDE(t *testing.T) {
+	resp := mcpCall(t, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"make_banner","arguments":{"text":"VFDE"}}}`)
+
+	result, ok := resp["result"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected result object, got: %v", resp)
+	}
+	content, ok := result["content"].([]any)
+	if !ok || len(content) == 0 {
+		t.Fatalf("expected non-empty content array, got: %v", result)
+	}
+	item, ok := content[0].(map[string]any)
+	if !ok {
+		t.Fatalf("expected content item object, got: %v", content[0])
+	}
+	got, _ := item["text"].(string)
+	want := "╦ ╦╔═╗╔╦╗╔═╗\n║╔╝╠╣  ║║║╣ \n╚╝ ╚  ╚╩╝╚═╝"
+	if got != want {
+		t.Errorf("make_banner(VFDE):\nwant %q\n got %q", want, got)
+	}
+}
+
+func TestMakeBannerMCPProtocolInitialize(t *testing.T) {
+	resp := mcpCall(t, `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}`)
+	result, ok := resp["result"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected result, got: %v", resp)
+	}
+	info, _ := result["serverInfo"].(map[string]any)
+	if info["name"] != "mcp-banner" {
+		t.Errorf("serverInfo.name: want %q, got %q", "mcp-banner", info["name"])
+	}
+}
+
+func TestMakeBannerMCPProtocolToolsList(t *testing.T) {
+	resp := mcpCall(t, `{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}`)
+	result, ok := resp["result"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected result, got: %v", resp)
+	}
+	tools, _ := result["tools"].([]any)
+	if len(tools) != 1 {
+		t.Fatalf("expected 1 tool, got %d", len(tools))
+	}
+	tool := tools[0].(map[string]any)
+	if tool["name"] != "make_banner" {
+		t.Errorf("tool name: want %q, got %q", "make_banner", tool["name"])
+	}
+}
+
+func TestMakeBannerMCPProtocolUnknownTool(t *testing.T) {
+	resp := mcpCall(t, `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"no_such_tool","arguments":{}}}`)
+	if resp["error"] == nil {
+		t.Errorf("expected error for unknown tool, got: %v", resp)
 	}
 }

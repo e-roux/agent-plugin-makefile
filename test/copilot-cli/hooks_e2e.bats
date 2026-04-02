@@ -58,7 +58,7 @@ _copilot() {
     --disable-builtin-mcps \
     --no-ask-user \
     --allow-all-tools \
-    -p "$1" 2>&1
+    -p "$1" < /dev/null 2>&1
 }
 
 # --- session-start hook -------------------------------------------------------
