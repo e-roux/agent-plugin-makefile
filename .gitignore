@@ -8,6 +8,5 @@ opencode/node_modules/
 opencode/dist/
 opencode/bun.lock
 
-# Go build artifacts
-mcp/mcp-banner
-copilot-cli/bin/
+# Go build artifacts (compiled binary, not the wrapper script)
+copilot-cli/bin/mcp-banner

@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "mcp-banner": {
-      "command": "./bin/mcp-banner"
+      "command": "./bin/mcp-banner.sh"
     }
   }
 }

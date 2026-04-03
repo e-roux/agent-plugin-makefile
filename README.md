@@ -13,10 +13,13 @@ Two agents are currently supported:
 
 ```
 agent-plugin-makefile/
-├── copilot-cli/          GitHub Copilot CLI plugin
+├── copilot-cli/          GitHub Copilot CLI plugin (name: make-first)
 │   ├── plugin.json       Plugin manifest
+│   ├── .mcp.json         MCP server configuration
+│   ├── bin/              mcp-banner.sh wrapper (builds binary on first run)
 │   ├── hooks/            Hook configuration and shell scripts
-│   └── skill/            Skill definition, Makefile.template, validate.sh
+│   ├── skills/           Skill definitions (makefile, python)
+│   └── src/              mcp-banner Go source (ships with plugin install)
 ├── opencode/             OpenCode npm package
 │   ├── package.json      npm manifest (version source of truth)
 │   ├── tsconfig.json     TypeScript configuration
@@ -71,6 +74,8 @@ These commands are blocked — use `make <target>` instead:
 copilot plugin install e-roux/agent-plugin-makefile:copilot-cli
 ```
 
+The `mcp-banner` MCP server is compiled from source on first use. It requires `go` to be installed (`brew install go`). Run `make mcp.build` to pre-compile it manually.
+
 ### OpenCode
 
 Add the package to your `opencode.json` configuration:
@@ -89,13 +94,13 @@ Add the package to your `opencode.json` configuration:
 
 | Resource | Path | Role |
 |----------|------|------|
-| Plugin manifest | `copilot-cli/plugin.json` | Declares skills and hooks paths |
+| Plugin manifest | `copilot-cli/plugin.json` | Declares skills, hooks, and MCP server paths |
 | Hook configuration | `copilot-cli/hooks/policy.json` | Registers `sessionStart` and `preToolUse` hooks |
 | Pre-tool hook | `copilot-cli/hooks/scripts/pre-tool.sh` | Blocks forbidden bash commands; validates Makefile on create/edit |
 | Session-start hook | `copilot-cli/hooks/scripts/session-start.sh` | Displays policy banner; writes audit log |
-| Skill definition | `copilot-cli/skill/SKILL.md` | Loaded into agent context; describes Makefile workflow and evaluation scale |
-| Makefile template | `copilot-cli/skill/assets/Makefile.template` | Conformant starting point for new projects |
-| Validator | `copilot-cli/skill/assets/validate.sh` | Static Makefile validator (1–8 scale) |
+| Skill definitions | `copilot-cli/skills/` | `makefile` and `python` skill contexts |
+| MCP server wrapper | `copilot-cli/bin/mcp-banner.sh` | Builds `mcp-banner` from source on first run, then execs it |
+| MCP server source | `copilot-cli/src/` | Go source for `mcp-banner` — ships with the plugin; requires `go` to compile |
 
 ### OpenCode (`opencode/`)
 

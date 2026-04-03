@@ -15,7 +15,7 @@ GO           := go
 
 COPILOT_DIR  := copilot-cli
 OPENCODE_DIR := opencode
-MCP_DIR      := mcp
+MCP_DIR      := copilot-cli/src
 TEST_DIR     := test
 
 HOOKS_SCRIPTS := $(COPILOT_DIR)/hooks/scripts
@@ -92,7 +92,7 @@ mcp.test:
 	cd $(MCP_DIR) && $(GO) test -v -count=1 ./...
 
 mcp.build:
-	cd $(MCP_DIR) && $(GO) build -o ../$(COPILOT_DIR)/bin/mcp-banner .
+	cd $(MCP_DIR) && $(GO) build -o ../bin/mcp-banner .
 
 #------------------------------------------------------------------------------
 # Publish
@@ -113,7 +113,8 @@ clean:
 	rm -rf $(COPILOT_DIR)/hooks/logs/ .opencode/logs/ .github/hooks/logs/
 
 distclean: clean
-	rm -rf $(OPENCODE_DIR)/node_modules $(OPENCODE_DIR)/dist $(COPILOT_DIR)/bin/
+	rm -rf $(OPENCODE_DIR)/node_modules $(OPENCODE_DIR)/dist
+	rm -f $(COPILOT_DIR)/bin/mcp-banner
 
 #------------------------------------------------------------------------------
 # Help
