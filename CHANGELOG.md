@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.0]
+
+- Add `shell` and `testing` skills: migrate from user-level (`~/.copilot/skills/`) into plugin for proper versioning and cohesion; plugin now covers the complete Make-centric dev suite (Makefile + Python + Shell + TDD)
+- Update plugin description to reflect broadened scope
+
 ## [0.6.0]
 
 - Add cross-compile binary assets to `publish` target: darwin/arm64, darwin/amd64, linux/amd64, linux/arm64
