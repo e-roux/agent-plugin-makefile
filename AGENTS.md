@@ -6,12 +6,10 @@ This repository is a monorepo providing a Makefile development plugin for AI cod
 
 ```
 agent-plugin-makefile/
-├── copilot-cli/     GitHub Copilot CLI plugin (plugin.json, .mcp.json, hooks/, skill/, bin/)
-├── mcp/             Go MCP server (mcp-banner: box-drawing banner generator)
-├── opencode/        OpenCode npm package (package.json, core.ts, index.ts)
+├── hooks/           Hook scripts (session-start, pre-tool)
+├── skills/          Agent skills (makefile, python, shell, testing, banner)
 └── test/
-    ├── copilot-cli/ Tests for the Copilot CLI integration
-    └── opencode/    Tests for the OpenCode integration
+    └── copilot-cli/ Tests for the Copilot CLI integration
 ```
 
 ## Policy enforcement

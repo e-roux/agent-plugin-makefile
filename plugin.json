@@ -1,7 +1,7 @@
 {
   "name": "make-first",
   "description": "Make-centric development plugin: enforces Makefile structure, TDD practices, shell scripting standards, and the uv/Python toolchain. Blocks direct tool invocations.",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "author": {
     "name": "Emmanuel Roux"
   },
@@ -21,6 +21,5 @@
     "lastVerified": "2026-04-10"
   },
   "skills": "skills/",
-  "hooks": "hooks/policy.json",
-  "mcpServers": ".mcp.json"
+  "hooks": "hooks/policy.json"
 }

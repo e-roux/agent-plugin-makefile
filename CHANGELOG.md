@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.11.0]
+
+- Migrate `mcp-banner` Go MCP server to a pure bash skill (`skills/banner/banner.sh`)
+- Add `skills/banner/` skill: `banner.sh` renders box-drawing banners via a single `jq` call against `letters.json` — no binary build required
+- Remove Go source (`src/`), pre-compiled binaries (`bin/mcp-banner-*`), MCP wrapper (`bin/mcp-banner.sh`), and `.mcp.json` server registration
+- Remove `"mcpServers"` field from `plugin.json`; version bumped to `0.11.0`
+- Update `skills/makefile/SKILL.md`: banner generation now calls `bash skills/banner/banner.sh TEXT` instead of the `make_banner` MCP tool
+- Update `Makefile`: remove `GO`, `MCP_DIR`, `mcp.test`, `mcp.build`, `distclean`; add `banner.test`; simplify `publish` (no binary assets)
+- Update `plugin_integrity.bats`: replace MCP protocol tests with banner skill structure and render correctness tests
+- Add `test/copilot-cli/banner.bats`: 12 unit tests covering empty input, single letters, MAKE/VFDE renders, case normalisation, unknown chars, newline count, and width growth
+
 ## [0.9.0]
 
 - Ship pre-compiled binaries for all platforms (darwin/arm64, darwin/amd64, linux/amd64, linux/arm64) directly in the repository

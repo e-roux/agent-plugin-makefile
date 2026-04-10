@@ -1,9 +1,6 @@
 #!/usr/bin/env bats
 
 PLUGIN_DIR="$BATS_TEST_DIRNAME/../.."
-BIN_DIR="$PLUGIN_DIR/bin"
-SRC_DIR="$PLUGIN_DIR/src"
-WRAPPER="$BIN_DIR/mcp-banner.sh"
 
 @test "plugin.json exists and has required fields" {
   [ -f "$PLUGIN_DIR/plugin.json" ]
@@ -16,60 +13,36 @@ WRAPPER="$BIN_DIR/mcp-banner.sh"
   jq -e '.version' "$PLUGIN_DIR/plugin.json" >/dev/null
 }
 
-@test ".mcp.json exists and references mcp-banner" {
-  [ -f "$PLUGIN_DIR/.mcp.json" ]
-  jq -e '.mcpServers["mcp-banner"]' "$PLUGIN_DIR/.mcp.json" >/dev/null
+@test "plugin.json does not reference a removed mcpServers field" {
+  local has_mcp
+  has_mcp=$(jq 'has("mcpServers")' "$PLUGIN_DIR/plugin.json")
+  [ "$has_mcp" = "false" ]
 }
 
-@test ".mcp.json command points to existing wrapper" {
-  local cmd
-  cmd=$(jq -r '.mcpServers["mcp-banner"].command' "$PLUGIN_DIR/.mcp.json")
-  [ -f "$PLUGIN_DIR/$cmd" ]
-  [ -x "$PLUGIN_DIR/$cmd" ]
+@test "banner skill directory contains required files" {
+  local banner_dir="$PLUGIN_DIR/skills/banner"
+  [ -d "$banner_dir" ]
+  [ -f "$banner_dir/SKILL.md" ]
+  [ -f "$banner_dir/banner.sh" ]
+  [ -f "$banner_dir/letters.json" ]
 }
 
-@test "wrapper script selects platform binary from bin/" {
-  run bash "$WRAPPER" < /dev/null
-  [[ "$status" -eq 0 ]] || [[ "$output" == *"no binary for"* ]]
+@test "banner.sh is executable" {
+  [ -x "$PLUGIN_DIR/skills/banner/banner.sh" ]
 }
 
-@test "pre-compiled binaries exist for all platforms" {
-  for platform in darwin-arm64 darwin-amd64 linux-amd64 linux-arm64; do
-    [ -f "$BIN_DIR/mcp-banner-$platform" ] || { echo "missing: mcp-banner-$platform"; false; }
-    [ -x "$BIN_DIR/mcp-banner-$platform" ] || { echo "not executable: mcp-banner-$platform"; false; }
-  done
+@test "banner.sh renders MAKE correctly" {
+  local expected=$'╔╦╗╔═╗╦╔ ╔═╗\n║║║╠═╣╠╩╗║╣ \n╝ ╝╝ ╝╝ ╝╚═╝'
+  local got
+  got=$(bash "$PLUGIN_DIR/skills/banner/banner.sh" "MAKE")
+  [ "$got" = "$expected" ]
 }
 
-@test "Go source compiles successfully" {
-  cd "$SRC_DIR"
-  run go build -o /dev/null .
-  [ "$status" -eq 0 ]
-}
-
-@test "MCP server responds to initialize" {
-  local resp
-  resp=$(echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | "$WRAPPER" 2>/dev/null)
-  echo "$resp" | jq -e '.result.serverInfo.name' >/dev/null
-  local name
-  name=$(echo "$resp" | jq -r '.result.serverInfo.name')
-  [ "$name" = "mcp-banner" ]
-}
-
-@test "MCP server lists make_banner tool" {
-  local resp
-  resp=$(echo '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | "$WRAPPER" 2>/dev/null)
-  local tool_name
-  tool_name=$(echo "$resp" | jq -r '.result.tools[0].name')
-  [ "$tool_name" = "make_banner" ]
-}
-
-@test "MCP server renders banner via tools/call" {
-  local resp
-  resp=$(echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"make_banner","arguments":{"text":"TEST"}}}' | "$WRAPPER" 2>/dev/null)
-  echo "$resp" | jq -e '.result.content[0].text' >/dev/null
-  local text
-  text=$(echo "$resp" | jq -r '.result.content[0].text')
-  [[ "$text" == *"╔"* ]]
+@test "banner.sh renders VFDE correctly" {
+  local expected=$'╦ ╦╔═╗╔╦╗╔═╗\n║╔╝╠╣  ║║║╣ \n╚╝ ╚  ╚╩╝╚═╝'
+  local got
+  got=$(bash "$PLUGIN_DIR/skills/banner/banner.sh" "VFDE")
+  [ "$got" = "$expected" ]
 }
 
 @test "hooks policy.json is valid" {
