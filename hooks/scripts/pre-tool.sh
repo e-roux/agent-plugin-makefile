@@ -20,6 +20,16 @@ _deny() {
   exit 0
 }
 
+_redirect() {
+  local original="$1" replacement="$2" target="$3"
+  mkdir -p "$LOG_DIR" 2>/dev/null \
+    && echo "redirected at $(date -u +%Y-%m-%dT%H:%M:%SZ): $original → $replacement" >> "$LOG_DIR/pre-tool-denied.log" 2>/dev/null \
+    || true
+  jq -n --arg cmd "$replacement" --arg ctx "Redirected \`$original\` → \`$replacement\`. Always use make targets (\`make $target\`) — never call tools directly." \
+    '{"modifiedArgs":{"command":$cmd},"additionalContext":$ctx}'
+  exit 0
+}
+
 # ── Makefile content validator ────────────────────────────────────────────────
 
 _validate_makefile() {
@@ -84,65 +94,65 @@ if [ "$TOOL_NAME" = "bash" ]; then
   # Matches token at command start or after shell operator (; & |)
   _matches() { echo "$COMMAND" | grep -qE "(^|[;&|][[:space:]]*)$1([[:space:]]|\$)"; }
 
-  # pytest — use make test
+  # pytest → make test
   if _matches "pytest"; then
-    _deny "Direct pytest is forbidden. Use Make targets instead: make test"
+    _redirect "pytest" "make test" "test"
   fi
 
-  # ruff format — use make fmt
+  # ruff format → make fmt
   if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)ruff[[:space:]]+format([[:space:]]|$)'; then
-    _deny "Direct 'ruff format' is forbidden. Use Make targets instead: make fmt"
+    _redirect "ruff format" "make fmt" "fmt"
   fi
 
-  # ruff check — use make lint
+  # ruff check → make lint
   if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)ruff[[:space:]]+check([[:space:]]|$)'; then
-    _deny "Direct 'ruff check' is forbidden. Use Make targets instead: make lint"
+    _redirect "ruff check" "make lint" "lint"
   fi
 
-  # go test — use make test
+  # go test → make test
   if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)go[[:space:]]+test([[:space:]]|$)'; then
-    _deny "Direct 'go test' is forbidden. Use Make targets instead: make test"
+    _redirect "go test" "make test" "test"
   fi
 
-  # go build — use make build
+  # go build → make build
   if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)go[[:space:]]+build([[:space:]]|$)'; then
-    _deny "Direct 'go build' is forbidden. Use Make targets instead: make build"
+    _redirect "go build" "make build" "build"
   fi
 
-  # golangci-lint — use make lint
+  # golangci-lint → make lint
   if _matches "golangci-lint"; then
-    _deny "Direct golangci-lint is forbidden. Use Make targets instead: make lint"
+    _redirect "golangci-lint" "make lint" "lint"
   fi
 
-  # eslint — use make lint
+  # eslint → make lint
   if _matches "eslint"; then
-    _deny "Direct eslint is forbidden. Use Make targets instead: make lint"
+    _redirect "eslint" "make lint" "lint"
   fi
 
-  # jest — use make test
+  # jest → make test
   if _matches "jest"; then
-    _deny "Direct jest is forbidden. Use Make targets instead: make test"
+    _redirect "jest" "make test" "test"
   fi
 
-  # bun test — use make test
+  # bun test → make test
   if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)bun[[:space:]]+test([[:space:]]|$)'; then
-    _deny "Direct 'bun test' is forbidden. Use Make targets instead: make test"
+    _redirect "bun test" "make test" "test"
   fi
 
-  # black — use make fmt
+  # black → make fmt
   if _matches "black"; then
-    _deny "Direct black is forbidden. Use Make targets instead: make fmt"
+    _redirect "black" "make fmt" "fmt"
   fi
 
-  # python/pip/virtualenv — use uv
+  # python/pip/virtualenv — keep as deny (complex arg parsing)
   FORBIDDEN_PYTHON='(^|[;&|][[:space:]]*)(python3?|pip3?|virtualenv)([[:space:]]|$)'
   if echo "$COMMAND" | grep -qE "$FORBIDDEN_PYTHON"; then
     _deny "Direct python/pip/virtualenv is forbidden. Use uv: uv run <script>, uv add <pkg>, uvx <tool>"
   fi
 
-  # mypy — use zmypy (zuban drop-in)
+  # mypy → make typecheck
   if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)mypy([[:space:]]|$)'; then
-    _deny "Direct mypy is forbidden. Use zmypy (zuban): zmypy src/ or uv run zmypy src/"
+    _redirect "mypy" "make typecheck" "typecheck"
   fi
 
   exit 0

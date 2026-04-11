@@ -71,94 +71,94 @@ SCRIPTS_DIR="$BATS_TEST_DIRNAME/../../hooks/scripts"
   [ -z "$output" ]
 }
 
-# ── pre-tool.sh: bash — direct tool blocking ──────────────────────────────────
+# ── pre-tool.sh: bash — direct tool redirect ──────────────────────────────────
 
-@test "pre-tool: denies pytest at command start" {
+@test "pre-tool: redirects pytest at command start" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"pytest tests/\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make test" ]
 }
 
-@test "pre-tool: denies pytest after semicolon" {
+@test "pre-tool: redirects pytest after semicolon" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"cd src; pytest .\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make test" ]
 }
 
-@test "pre-tool: denies ruff format" {
+@test "pre-tool: redirects ruff format" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"ruff format src/\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make fmt" ]
 }
 
-@test "pre-tool: denies ruff check" {
+@test "pre-tool: redirects ruff check" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"ruff check --fix src/\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make lint" ]
 }
 
-@test "pre-tool: denies go test" {
+@test "pre-tool: redirects go test" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"go test ./...\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make test" ]
 }
 
-@test "pre-tool: denies go build" {
+@test "pre-tool: redirects go build" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"go build ./...\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make build" ]
 }
 
-@test "pre-tool: denies golangci-lint" {
+@test "pre-tool: redirects golangci-lint" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"golangci-lint run ./...\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make lint" ]
 }
 
-@test "pre-tool: denies eslint" {
+@test "pre-tool: redirects eslint" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"eslint --fix src/\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make lint" ]
 }
 
-@test "pre-tool: denies jest" {
+@test "pre-tool: redirects jest" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"jest --coverage\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make test" ]
 }
 
-@test "pre-tool: denies bun test" {
+@test "pre-tool: redirects bun test" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"bun test\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make test" ]
 }
 
-@test "pre-tool: denies black" {
+@test "pre-tool: redirects black" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"black .\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make fmt" ]
 }
 
 @test "pre-tool: denies direct python" {
@@ -181,8 +181,8 @@ SCRIPTS_DIR="$BATS_TEST_DIRNAME/../../hooks/scripts"
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"mypy src/\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  decision="$(echo "$output" | jq -r '.permissionDecision')"
-  [ "$decision" = "deny" ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make typecheck" ]
 }
 
 @test "pre-tool: allows uv run" {
@@ -192,19 +192,19 @@ SCRIPTS_DIR="$BATS_TEST_DIRNAME/../../hooks/scripts"
   [ -z "$output" ]
 }
 
-@test "pre-tool: deny response is valid JSON" {
+@test "pre-tool: redirect response is valid JSON" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"pytest tests/\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
   echo "$output" | jq . >/dev/null
 }
 
-@test "pre-tool: deny response contains reason mentioning make" {
+@test "pre-tool: redirect response contains additionalContext mentioning make" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"pytest tests/\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
   [ "$status" -eq 0 ]
-  reason="$(echo "$output" | jq -r '.permissionDecisionReason')"
-  [[ "$reason" == *"make"* ]]
+  ctx="$(echo "$output" | jq -r '.additionalContext')"
+  [[ "$ctx" == *"make"* ]]
 }
 
 # ── pre-tool.sh: create — Makefile validation ─────────────────────────────────
