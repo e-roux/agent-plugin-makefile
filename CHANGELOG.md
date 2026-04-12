@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: redirect biome format/lint/check, vitest, tsc, svelte-check to make targets
+
 ## [0.11.2]
 
 - Transform direct-tool-call enforcement from deny to auto-redirect via `modifiedArgs` (CLI v1.0.24): `pytest`→`make test`, `ruff`→`make lint/fmt`, `go test`→`make test`, `go build`→`make build`, `golangci-lint`/`eslint`→`make lint`, `jest`/`bun test`→`make test`, `black`→`make fmt`, `mypy`→`make typecheck`; agent learns the pattern through `additionalContext`

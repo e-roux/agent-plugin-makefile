@@ -168,6 +168,7 @@ compilerOptions: { runes: true }
 - Strict mode always (`"strict": true`)
 - All function parameters and return types annotated
 - Use `lang="ts"` in every `<script>` block
+- Biome is the sole formatter and linter for JS/TS/JSON/CSS — ESLint is not used
 
 ---
 
