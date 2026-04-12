@@ -129,9 +129,29 @@ if [ "$TOOL_NAME" = "bash" ]; then
     _redirect "eslint" "make lint" "lint"
   fi
 
+  # biome format → make fmt
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)biome[[:space:]]+format([[:space:]]|$)'; then
+    _redirect "biome format" "make fmt" "fmt"
+  fi
+
+  # biome lint → make lint
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)biome[[:space:]]+lint([[:space:]]|$)'; then
+    _redirect "biome lint" "make lint" "lint"
+  fi
+
+  # biome check → make check
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)biome[[:space:]]+check([[:space:]]|$)'; then
+    _redirect "biome check" "make check" "check"
+  fi
+
   # jest → make test
   if _matches "jest"; then
     _redirect "jest" "make test" "test"
+  fi
+
+  # vitest → make test
+  if _matches "vitest"; then
+    _redirect "vitest" "make test" "test"
   fi
 
   # bun test → make test
@@ -153,6 +173,16 @@ if [ "$TOOL_NAME" = "bash" ]; then
   # mypy → make typecheck
   if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)mypy([[:space:]]|$)'; then
     _redirect "mypy" "make typecheck" "typecheck"
+  fi
+
+  # tsc → make typecheck
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)tsc([[:space:]]|$)'; then
+    _redirect "tsc" "make typecheck" "typecheck"
+  fi
+
+  # svelte-check → make typecheck
+  if _matches "svelte-check"; then
+    _redirect "svelte-check" "make typecheck" "typecheck"
   fi
 
   exit 0
