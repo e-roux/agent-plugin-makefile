@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.11.8]
+
+- Remove stale `.mcp.json` — `mcp-banner` was replaced by `skills/banner/` in v0.11.4; zombie file caused `claude mcp list` to report a failed server
+
 ## [0.11.7]
 
 - Fix dual-manifest schema: `.claude-plugin/plugin.json` minimal for Claude Code; root `plugin.json` full for Copilot CLI
