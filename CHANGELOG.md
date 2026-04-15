@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.11.6]
+
+- Move plugin manifest to `.claude-plugin/plugin.json` — DRY path for both Copilot CLI and Claude Code
+
 ## [0.11.5]
 
 - Align with Vulcan v0.18.0 dual-tool DRY guidance (no content changes — plugin has no `.agents/skills/` references to migrate)

@@ -1,7 +1,7 @@
 {
   "name": "make-first",
   "description": "Make-centric development plugin: enforces Makefile structure, TDD practices, shell scripting standards, and the uv/Python toolchain. Auto-redirects direct tool invocations to make targets.",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "author": {
     "name": "Emmanuel Roux"
   },
@@ -20,7 +20,7 @@
     "copilotCliVersion": "1.0.27",
     "copilotSdkVersion": "0.2.2",
     "lastVerified": "2026-04-15",
-    "notes": "pre-tool hook uses modifiedArgs to auto-redirect direct tool calls to make targets with additionalContext for agent learning; CLI 1.0.26 provides COPILOT_PLUGIN_ROOT env var to hooks — used for robust path resolution; CLI 1.0.26 deduplicates instruction files and consolidates applyTo patterns, reducing token usage for the 5-skill plugin"
+    "notes": "manifest moved to .claude-plugin/plugin.json — DRY path discovered by both Copilot CLI and Claude Code; pre-tool hook uses modifiedArgs to auto-redirect direct tool calls to make targets with additionalContext for agent learning; CLI 1.0.26 provides COPILOT_PLUGIN_ROOT env var to hooks — used for robust path resolution"
   },
   "skills": "skills/",
   "hooks": "hooks/policy.json"
