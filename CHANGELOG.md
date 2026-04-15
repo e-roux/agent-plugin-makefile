@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.11.7]
+
+- Fix dual-manifest schema: `.claude-plugin/plugin.json` minimal for Claude Code; root `plugin.json` full for Copilot CLI
+- Split hooks: `hooks/policy.json` (PascalCase, Claude Code) and `hooks/policy.copilot.json` (camelCase, Copilot CLI)
+
 ## [0.11.6]
 
 - Move plugin manifest to `.claude-plugin/plugin.json` — DRY path for both Copilot CLI and Claude Code

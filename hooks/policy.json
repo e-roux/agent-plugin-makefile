@@ -1,18 +1,15 @@
 {
-  "version": 1,
   "hooks": {
-    "sessionStart": [
+    "SessionStart": [
       {
         "type": "command",
-        "bash": "hooks/scripts/session-start.sh",
-        "timeoutSec": 10
+        "command": "hooks/scripts/session-start.sh"
       }
     ],
-    "preToolUse": [
+    "PreToolUse": [
       {
         "type": "command",
-        "bash": "hooks/scripts/pre-tool.sh",
-        "timeoutSec": 15
+        "command": "hooks/scripts/pre-tool.sh"
       }
     ]
   }
