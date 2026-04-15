@@ -1,8 +1,11 @@
 # Changelog
 
-## Unreleased
+## [0.11.4]
 
-- feat: redirect biome format/lint/check, vitest, tsc, svelte-check to make targets
+- Bump Copilot CLI version to 1.0.27 (SDK unchanged at 0.2.2)
+- Use `COPILOT_PLUGIN_ROOT` env var (CLI 1.0.26) in hook scripts for robust path resolution, with fallback to `dirname "$0"` for backward compatibility
+- Redirect biome format/lint/check, vitest, tsc, svelte-check to make targets
+- Update makefile skill: document `COPILOT_PLUGIN_ROOT` usage in hook enforcement note
 
 ## [0.11.3]
 

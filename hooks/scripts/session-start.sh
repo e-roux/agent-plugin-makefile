@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="$SCRIPT_DIR/../logs"
+PLUGIN_ROOT="${COPILOT_PLUGIN_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+LOG_DIR="$PLUGIN_ROOT/hooks/logs"
 
 INPUT="$(cat)"
 CWD="$(echo "$INPUT" | jq -r '.cwd // "unknown"')"
