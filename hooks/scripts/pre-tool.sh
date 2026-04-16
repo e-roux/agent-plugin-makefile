@@ -180,9 +180,63 @@ if [ "$TOOL_NAME" = "bash" ]; then
     _redirect "tsc" "make typecheck" "typecheck"
   fi
 
-  # svelte-check → make typecheck
-  if _matches "svelte-check"; then
+  # svelte-check → make typecheck (match direct and via npx)
+  if _matches "svelte-check" || echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npx[[:space:]]+svelte-check([[:space:]]|$)'; then
     _redirect "svelte-check" "make typecheck" "typecheck"
+  fi
+
+  # ── npm run / npx redirects ──────────────────────────────────────────────────
+
+  # npm run test → make test
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npm[[:space:]]+run[[:space:]]+test([[:space:]]|$)'; then
+    _redirect "npm run test" "make test" "test"
+  fi
+
+  # npm test → make test
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npm[[:space:]]+test([[:space:]]|$)'; then
+    _redirect "npm test" "make test" "test"
+  fi
+
+  # npm run check → make check
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npm[[:space:]]+run[[:space:]]+check([[:space:]]|$)'; then
+    _redirect "npm run check" "make check" "check"
+  fi
+
+  # npm run lint → make lint
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npm[[:space:]]+run[[:space:]]+lint([[:space:]]|$)'; then
+    _redirect "npm run lint" "make lint" "lint"
+  fi
+
+  # npm run build → make build
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npm[[:space:]]+run[[:space:]]+build([[:space:]]|$)'; then
+    _redirect "npm run build" "make build" "build"
+  fi
+
+  # npm run dev → make dev
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npm[[:space:]]+run[[:space:]]+dev([[:space:]]|$)'; then
+    _redirect "npm run dev" "make dev" "dev"
+  fi
+
+  # npm run format → make fmt (catches format, format:check, format:write)
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npm[[:space:]]+run[[:space:]]+format([[:space:]:]|$)'; then
+    _redirect "npm run format" "make fmt" "fmt"
+  fi
+
+  # npx <tool> — catch common tools invoked via npx
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npx[[:space:]]+eslint([[:space:]]|$)'; then
+    _redirect "npx eslint" "make lint" "lint"
+  fi
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npx[[:space:]]+jest([[:space:]]|$)'; then
+    _redirect "npx jest" "make test" "test"
+  fi
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npx[[:space:]]+vitest([[:space:]]|$)'; then
+    _redirect "npx vitest" "make test" "test"
+  fi
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npx[[:space:]]+tsc([[:space:]]|$)'; then
+    _redirect "npx tsc" "make typecheck" "typecheck"
+  fi
+  if echo "$COMMAND" | grep -qE '(^|[;&|][[:space:]]*)npx[[:space:]]+biome([[:space:]]|$)'; then
+    _redirect "npx biome" "make check" "check"
   fi
 
   exit 0

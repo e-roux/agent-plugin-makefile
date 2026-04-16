@@ -192,6 +192,103 @@ SCRIPTS_DIR="$BATS_TEST_DIRNAME/../../hooks/scripts"
   [ -z "$output" ]
 }
 
+# ── pre-tool.sh: bash — npm/npx redirect ──────────────────────────────────────
+
+@test "pre-tool: redirects npm run check" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"cd /project && npm run check 2>&1 | tail -20\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make check" ]
+}
+
+@test "pre-tool: redirects npm run lint" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npm run lint\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make lint" ]
+}
+
+@test "pre-tool: redirects npm run build" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npm run build\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make build" ]
+}
+
+@test "pre-tool: redirects npm run dev" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npm run dev -- --port 5174\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make dev" ]
+}
+
+@test "pre-tool: redirects npm run test" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npm run test\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make test" ]
+}
+
+@test "pre-tool: redirects npm test" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npm test\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make test" ]
+}
+
+@test "pre-tool: redirects npm run format:check" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npm run format:check\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make fmt" ]
+}
+
+@test "pre-tool: redirects npx svelte-check" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"cd /project && npx svelte-check --tsconfig ./tsconfig.json\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make typecheck" ]
+}
+
+@test "pre-tool: redirects npx eslint" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npx eslint src/\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make lint" ]
+}
+
+@test "pre-tool: redirects npx jest" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npx jest --coverage\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make test" ]
+}
+
+@test "pre-tool: redirects npx tsc" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"npx tsc --noEmit\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  cmd="$(echo "$output" | jq -r '.modifiedArgs.command')"
+  [ "$cmd" = "make typecheck" ]
+}
+
+@test "pre-tool: allows make qa (no false positive on npm-like commands)" {
+  local input='{"toolName":"bash","toolArgs":"{\"command\":\"make qa 2>&1 | tail -20\"}"}'
+  run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
 @test "pre-tool: redirect response is valid JSON" {
   local input='{"toolName":"bash","toolArgs":"{\"command\":\"pytest tests/\"}"}'
   run bash -c "echo '$input' | '$SCRIPTS_DIR/pre-tool.sh'"
